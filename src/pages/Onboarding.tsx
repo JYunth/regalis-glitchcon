@@ -9,16 +9,24 @@ import { Progress } from '@/components/ui/progress'; // Import Progress componen
 // Define the structure for the comprehensive profile
 interface IncomeSource { name: string; amount: number; }
 interface FinancialGoal { type: string; description: string; targetAmount: number; targetDate?: string; }
+// NEW data structures
+interface Asset { type: string; description: string; value: number; }
+interface Liability { type: string; description: string; balance: number; interestRate?: number; }
+interface InvestmentHolding { type: string; name: string; value: number; }
+
 interface UserFinancialProfile {
   incomeSources: IncomeSource[];
   expenseBudgets: { [category: string]: number };
   financialGoals: FinancialGoal[];
+  assets: Asset[]; // NEW
+  liabilities: Liability[]; // NEW
+  investments: InvestmentHolding[]; // NEW
   riskToleranceScore?: number;
   financialHealthScore?: number;
   onboardingComplete: boolean;
 }
 
-const TOTAL_STEPS = 6; // Define total number of steps
+const TOTAL_STEPS = 9; // Updated total number of steps
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +39,11 @@ const Onboarding: React.FC = () => {
     housing: 0, food: 0, transport: 0, utilities: 0, entertainment: 0, other: 0
   });
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([{ type: '', description: '', targetAmount: 0 }]);
+  // NEW state variables for added steps
+  const [assets, setAssets] = useState<Asset[]>([{ type: '', description: '', value: 0 }]);
+  const [liabilities, setLiabilities] = useState<Liability[]>([{ type: '', description: '', balance: 0, interestRate: 0 }]);
+  const [investments, setInvestments] = useState<InvestmentHolding[]>([{ type: '', name: '', value: 0 }]);
+  // END NEW state variables
   const [riskAnswers, setRiskAnswers] = useState<{ [questionId: string]: string }>({}); // Placeholder for assessment answers
   const [healthAnswers, setHealthAnswers] = useState<{ [questionId: string]: string }>({}); // Placeholder for assessment answers
 
@@ -42,7 +55,7 @@ const Onboarding: React.FC = () => {
         const profile = JSON.parse(profileString);
         if (profile && profile.onboardingComplete === true) {
           console.log('User already onboarded, redirecting to dashboard.');
-          navigate('/', { replace: true }); // Redirect to dashboard
+          navigate('/dashboard', { replace: true }); // Redirect to dashboard (ensure correct path)
         }
       }
     } catch (error) {
@@ -76,6 +89,9 @@ const Onboarding: React.FC = () => {
       incomeSources: incomeSources.filter(s => s.name && s.amount > 0), // Clean up empty entries
       expenseBudgets: expenseBudgets,
       financialGoals: financialGoals.filter(g => g.type && g.targetAmount > 0), // Clean up empty entries
+      assets: assets.filter(a => a.type && a.value > 0), // NEW: Add assets
+      liabilities: liabilities.filter(l => l.type && l.balance > 0), // NEW: Add liabilities
+      investments: investments.filter(i => i.type && i.value > 0), // NEW: Add investments
       riskToleranceScore: calculatedRiskScore,
       financialHealthScore: calculatedHealthScore,
       onboardingComplete: true,
@@ -111,7 +127,6 @@ const Onboarding: React.FC = () => {
       const updatedSources = incomeSources.filter((_, i) => i !== index);
       setIncomeSources(updatedSources);
     } else {
-      // Optionally clear the fields if it's the last one
       setIncomeSources([{ name: '', amount: 0 }]);
     }
   };
@@ -119,6 +134,7 @@ const Onboarding: React.FC = () => {
   const renderIncomeStep = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Income Sources</h3>
+      <p className="text-sm text-muted-foreground mb-4">List your regular sources of income (monthly, after tax).</p>
       {incomeSources.map((source, index) => (
         <div key={index} className="flex items-end space-x-2 border p-3 rounded-md relative">
           <div className="flex-1 space-y-1">
@@ -131,7 +147,7 @@ const Onboarding: React.FC = () => {
             />
           </div>
           <div className="flex-1 space-y-1">
-            <Label htmlFor={`income-amount-${index}`}>Monthly Amount (After Tax)</Label>
+            <Label htmlFor={`income-amount-${index}`}>Monthly Amount ($)</Label>
             <Input
               id={`income-amount-${index}`}
               type="number"
@@ -145,7 +161,7 @@ const Onboarding: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeIncomeSource(index)}
-                className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+                className="absolute top-1 right-1 text-red-500 hover:text-red-700 p-1 h-auto"
                 aria-label="Remove income source"
              >
                 &times; {/* Simple X icon */}
@@ -224,7 +240,7 @@ const Onboarding: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeGoal(index)}
-                className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+                className="absolute top-1 right-1 text-red-500 hover:text-red-700 p-1 h-auto"
                 aria-label="Remove goal"
              >
                 &times;
@@ -250,7 +266,7 @@ const Onboarding: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor={`goal-amount-${index}`}>Target Amount</Label>
+              <Label htmlFor={`goal-amount-${index}`}>Target Amount ($)</Label>
               <Input
                 id={`goal-amount-${index}`}
                 type="number"
@@ -278,7 +294,254 @@ const Onboarding: React.FC = () => {
   );
   // --- End Step 3 ---
 
-  // --- Step 4: Risk Tolerance Assessment ---
+
+  // --- NEW Step 4: Assets ---
+  const handleAssetChange = (index: number, field: keyof Asset, value: string | number) => {
+    const updatedAssets = [...assets];
+    if (field === 'value') {
+      updatedAssets[index][field] = Number(value) || 0;
+    } else {
+      updatedAssets[index][field] = value as string;
+    }
+    setAssets(updatedAssets);
+  };
+
+  const addAsset = () => {
+    setAssets([...assets, { type: '', description: '', value: 0 }]);
+  };
+
+  const removeAsset = (index: number) => {
+    if (assets.length > 1) {
+      setAssets(assets.filter((_, i) => i !== index));
+    } else {
+      setAssets([{ type: '', description: '', value: 0 }]);
+    }
+  };
+
+  const renderAssetsStep = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold mb-4">Assets</h3>
+      <p className="text-sm text-muted-foreground mb-4">List your significant assets and their estimated current value.</p>
+      {assets.map((asset, index) => (
+        <div key={index} className="flex items-end space-x-2 border p-3 rounded-md relative">
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`asset-type-${index}`}>Asset Type</Label>
+            <Input
+              id={`asset-type-${index}`}
+              placeholder="e.g., Savings Account, Real Estate, Stocks"
+              value={asset.type}
+              onChange={(e) => handleAssetChange(index, 'type', e.target.value)}
+            />
+          </div>
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`asset-desc-${index}`}>Description (Optional)</Label>
+            <Input
+              id={`asset-desc-${index}`}
+              placeholder="e.g., Primary Residence, Emergency Fund"
+              value={asset.description}
+              onChange={(e) => handleAssetChange(index, 'description', e.target.value)}
+            />
+          </div>
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`asset-value-${index}`}>Estimated Value ($)</Label>
+            <Input
+              id={`asset-value-${index}`}
+              type="number"
+              placeholder="e.g., 50000"
+              value={asset.value === 0 ? '' : asset.value}
+              onChange={(e) => handleAssetChange(index, 'value', e.target.value)}
+            />
+          </div>
+          {assets.length > 1 && (
+             <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeAsset(index)}
+                className="absolute top-1 right-1 text-red-500 hover:text-red-700 p-1 h-auto"
+                aria-label="Remove asset"
+             >
+                &times;
+             </Button>
+          )}
+        </div>
+      ))}
+      <Button variant="outline" onClick={addAsset} className="mt-2">
+        + Add Another Asset
+      </Button>
+    </div>
+  );
+  // --- End NEW Step 4 ---
+
+
+  // --- NEW Step 5: Liabilities ---
+  const handleLiabilityChange = (index: number, field: keyof Liability, value: string | number) => {
+    const updatedLiabilities = [...liabilities];
+    if (field === 'balance' || field === 'interestRate') {
+      updatedLiabilities[index][field] = Number(value) || 0;
+    } else {
+      updatedLiabilities[index][field] = value as string;
+    }
+    setLiabilities(updatedLiabilities);
+  };
+
+  const addLiability = () => {
+    setLiabilities([...liabilities, { type: '', description: '', balance: 0, interestRate: 0 }]);
+  };
+
+  const removeLiability = (index: number) => {
+    if (liabilities.length > 1) {
+      setLiabilities(liabilities.filter((_, i) => i !== index));
+    } else {
+      setLiabilities([{ type: '', description: '', balance: 0, interestRate: 0 }]);
+    }
+  };
+
+  const renderLiabilitiesStep = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold mb-4">Liabilities (Debts)</h3>
+      <p className="text-sm text-muted-foreground mb-4">List your outstanding debts and their current balances.</p>
+      {liabilities.map((liability, index) => (
+        <div key={index} className="border p-4 rounded-md space-y-3 relative">
+           {liabilities.length > 1 && (
+             <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeLiability(index)}
+                className="absolute top-1 right-1 text-red-500 hover:text-red-700 p-1 h-auto"
+                aria-label="Remove liability"
+             >
+                &times;
+             </Button>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor={`liability-type-${index}`}>Liability Type</Label>
+              <Input
+                id={`liability-type-${index}`}
+                placeholder="e.g., Credit Card, Mortgage, Student Loan"
+                value={liability.type}
+                onChange={(e) => handleLiabilityChange(index, 'type', e.target.value)}
+              />
+            </div>
+             <div className="space-y-1">
+              <Label htmlFor={`liability-desc-${index}`}>Description (Optional)</Label>
+              <Input
+                id={`liability-desc-${index}`}
+                placeholder="e.g., Visa Card, Primary Mortgage"
+                value={liability.description}
+                onChange={(e) => handleLiabilityChange(index, 'description', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`liability-balance-${index}`}>Outstanding Balance ($)</Label>
+              <Input
+                id={`liability-balance-${index}`}
+                type="number"
+                placeholder="e.g., 5000"
+                value={liability.balance === 0 ? '' : liability.balance}
+                onChange={(e) => handleLiabilityChange(index, 'balance', e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`liability-rate-${index}`}>Interest Rate (%) (Optional)</Label>
+              <Input
+                id={`liability-rate-${index}`}
+                type="number"
+                placeholder="e.g., 19.9"
+                value={liability.interestRate === 0 ? '' : liability.interestRate}
+                onChange={(e) => handleLiabilityChange(index, 'interestRate', e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+      <Button variant="outline" onClick={addLiability} className="mt-2">
+        + Add Another Liability
+      </Button>
+    </div>
+  );
+  // --- End NEW Step 5 ---
+
+
+  // --- NEW Step 6: Investments ---
+  const handleInvestmentChange = (index: number, field: keyof InvestmentHolding, value: string | number) => {
+    const updatedInvestments = [...investments];
+    if (field === 'value') {
+      updatedInvestments[index][field] = Number(value) || 0;
+    } else {
+      updatedInvestments[index][field] = value as string;
+    }
+    setInvestments(updatedInvestments);
+  };
+
+  const addInvestment = () => {
+    setInvestments([...investments, { type: '', name: '', value: 0 }]);
+  };
+
+  const removeInvestment = (index: number) => {
+    if (investments.length > 1) {
+      setInvestments(investments.filter((_, i) => i !== index));
+    } else {
+      setInvestments([{ type: '', name: '', value: 0 }]);
+    }
+  };
+
+  const renderInvestmentsStep = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold mb-4">Investment Holdings</h3>
+      <p className="text-sm text-muted-foreground mb-4">List your current investment holdings and their estimated values.</p>
+      {investments.map((investment, index) => (
+        <div key={index} className="flex items-end space-x-2 border p-3 rounded-md relative">
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`investment-type-${index}`}>Investment Type</Label>
+            <Input
+              id={`investment-type-${index}`}
+              placeholder="e.g., Stocks, Bonds, ETF, Mutual Fund"
+              value={investment.type}
+              onChange={(e) => handleInvestmentChange(index, 'type', e.target.value)}
+            />
+          </div>
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`investment-name-${index}`}>Name/Symbol</Label>
+            <Input
+              id={`investment-name-${index}`}
+              placeholder="e.g., VOO, Apple Inc."
+              value={investment.name}
+              onChange={(e) => handleInvestmentChange(index, 'name', e.target.value)}
+            />
+          </div>
+          <div className="flex-1 space-y-1">
+            <Label htmlFor={`investment-value-${index}`}>Estimated Value ($)</Label>
+            <Input
+              id={`investment-value-${index}`}
+              type="number"
+              placeholder="e.g., 10000"
+              value={investment.value === 0 ? '' : investment.value}
+              onChange={(e) => handleInvestmentChange(index, 'value', e.target.value)}
+            />
+          </div>
+          {investments.length > 1 && (
+             <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeInvestment(index)}
+                className="absolute top-1 right-1 text-red-500 hover:text-red-700 p-1 h-auto"
+                aria-label="Remove investment"
+             >
+                &times;
+             </Button>
+          )}
+        </div>
+      ))}
+      <Button variant="outline" onClick={addInvestment} className="mt-2">
+        + Add Another Investment
+      </Button>
+    </div>
+  );
+  // --- End NEW Step 6 ---
+
+
+  // --- Step 7: Risk Tolerance Assessment (Renumbered) ---
   const riskQuestions = [
     { id: 'risk-1', text: 'How comfortable are you with potential investment losses?' },
     { id: 'risk-2', text: 'Do you prioritize high returns over investment safety?' },
@@ -297,21 +560,23 @@ const Onboarding: React.FC = () => {
         <div key={question.id} className="border p-4 rounded-md space-y-2">
           <Label htmlFor={question.id} className="font-semibold">{question.text}</Label>
           <div className="space-x-4 mt-2">
-            <Button variant="outline" onClick={() => handleRiskAnswer(question.id, 'low')}>Low</Button>
-            <Button variant="outline" onClick={() => handleRiskAnswer(question.id, 'medium')}>Medium</Button>
-            <Button variant="outline" onClick={() => handleRiskAnswer(question.id, 'high')}>High</Button>
+            {/* Consider using RadioGroup or styled buttons for better selection indication */}
+            <Button variant={riskAnswers[question.id] === 'low' ? 'default' : 'outline'} onClick={() => handleRiskAnswer(question.id, 'low')}>Low</Button>
+            <Button variant={riskAnswers[question.id] === 'medium' ? 'default' : 'outline'} onClick={() => handleRiskAnswer(question.id, 'medium')}>Medium</Button>
+            <Button variant={riskAnswers[question.id] === 'high' ? 'default' : 'outline'} onClick={() => handleRiskAnswer(question.id, 'high')}>High</Button>
           </div>
         </div>
       ))}
     </div>
   );
-  // --- End Step 4 ---
+  // --- End Step 7 ---
 
-  // --- Step 5: Financial Health Assessment ---
+
+  // --- Step 8: Financial Health Assessment (Renumbered) ---
   const healthQuestions = [
-    { id: 'health-1', text: 'Do you have an emergency fund to cover unexpected expenses?' },
-    { id: 'health-2', text: 'Are you currently managing any debt (credit cards, loans)?' },
-    { id: 'health-3', text: 'Do you regularly save a portion of your income?' },
+    { id: 'health-1', text: 'Do you have an emergency fund (3-6 months of expenses)?' },
+    { id: 'health-2', text: 'Are you actively managing high-interest debt (e.g., credit cards)?' },
+    { id: 'health-3', text: 'Do you consistently save/invest a portion of your income?' },
   ];
 
   const handleHealthAnswer = (questionId: string, answer: string) => {
@@ -326,29 +591,36 @@ const Onboarding: React.FC = () => {
         <div key={question.id} className="border p-4 rounded-md space-y-2">
           <Label htmlFor={question.id} className="font-semibold">{question.text}</Label>
           <div className="space-x-4 mt-2">
-            <Button variant="outline" onClick={() => handleHealthAnswer(question.id, 'yes')}>Yes</Button>
-            <Button variant="outline" onClick={() => handleHealthAnswer(question.id, 'no')}>No</Button>
+            <Button variant={healthAnswers[question.id] === 'yes' ? 'default' : 'outline'} onClick={() => handleHealthAnswer(question.id, 'yes')}>Yes</Button>
+            <Button variant={healthAnswers[question.id] === 'no' ? 'default' : 'outline'} onClick={() => handleHealthAnswer(question.id, 'no')}>No</Button>
           </div>
         </div>
       ))}
     </div>
   );
-  // --- End Step 5 ---
+  // --- End Step 8 ---
 
-  // --- Step 6: Review & Submit ---
+
+  // --- Step 9: Review & Submit (Renumbered) ---
   const renderReviewStep = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Review & Submit</h3>
       <p className="text-sm text-muted-foreground mb-4">Please review the information you've provided. You can go back to edit any section.</p>
-      {/* Display summary of all data here - PLACEHOLDER */}
-      <p>Income Sources: {incomeSources.length} sources</p>
-      <p>Expense Budgets: {Object.keys(expenseBudgets).length} categories</p>
-      <p>Financial Goals: {financialGoals.length} goals</p>
-      <p>Risk Assessment: {Object.keys(riskAnswers).length} answers</p>
-      <p>Health Assessment: {Object.keys(healthAnswers).length} answers</p>
+      {/* Display summary of all data here */}
+      <div className="space-y-2 text-sm">
+        <p><strong>Income Sources:</strong> {incomeSources.filter(s => s.name && s.amount > 0).length} sources entered.</p>
+        <p><strong>Expense Budgets:</strong> {Object.keys(expenseBudgets).length} categories budgeted.</p>
+        <p><strong>Financial Goals:</strong> {financialGoals.filter(g => g.type && g.targetAmount > 0).length} goals listed.</p>
+        <p><strong>Assets:</strong> {assets.filter(a => a.type && a.value > 0).length} assets listed.</p>
+        <p><strong>Liabilities:</strong> {liabilities.filter(l => l.type && l.balance > 0).length} liabilities listed.</p>
+        <p><strong>Investments:</strong> {investments.filter(i => i.type && i.value > 0).length} investments listed.</p>
+        <p><strong>Risk Assessment:</strong> {Object.keys(riskAnswers).length} questions answered.</p>
+        <p><strong>Health Assessment:</strong> {Object.keys(healthAnswers).length} questions answered.</p>
+      </div>
     </div>
   );
-  // --- End Step 6 ---
+  // --- End Step 9 ---
+
 
   // Helper function to render the current step's content
   const renderStepContent = () => {
@@ -356,9 +628,12 @@ const Onboarding: React.FC = () => {
       case 1: return renderIncomeStep();
       case 2: return renderExpenseStep();
       case 3: return renderGoalStep();
-      case 4: return renderRiskStep();
-      case 5: return renderHealthStep();
-      case 6: return renderReviewStep(); // Use the new function for Step 6
+      case 4: return renderAssetsStep(); // NEW
+      case 5: return renderLiabilitiesStep(); // NEW
+      case 6: return renderInvestmentsStep(); // NEW
+      case 7: return renderRiskStep(); // Renumbered
+      case 8: return renderHealthStep(); // Renumbered
+      case 9: return renderReviewStep(); // Renumbered
       default: return <div>Invalid Step</div>;
     }
   };

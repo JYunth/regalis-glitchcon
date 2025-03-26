@@ -1,4 +1,3 @@
-
 // Type definitions for our data
 export interface Transaction {
   id: string;
@@ -38,11 +37,18 @@ export interface UserSettings {
   notifications: boolean;
 }
 
+export interface Asset { type: string; description: string; value: number; }
+export interface Liability { type: string; description: string; balance: number; interestRate?: number; }
+export interface InvestmentHolding { type: string; name: string; value: number; }
+
 export interface UserData {
   balance: number;
   transactions: Transaction[];
   budgets: Budget[];
-  investments: Investment[];
+  investments: Investment[]; // investment suggestions
+  investmentHoldings: InvestmentHolding[]; // actual investments
+  assets: Asset[];
+  liabilities: Liability[];
   chatHistory: ChatMessage[];
   settings: UserSettings;
 }
@@ -53,7 +59,10 @@ const initializeUserData = (): UserData => {
     balance: 24680.42,
     transactions: [],
     budgets: [],
-    investments: [],
+    investments: [], // investment suggestions
+    investmentHoldings: [], // actual investments
+    assets: [],
+    liabilities: [],
     chatHistory: [],
     settings: {
       name: 'Alexandra Wilson',
