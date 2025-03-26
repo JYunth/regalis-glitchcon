@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
-import Getstarted from '@/components/GetStarted';
+import Getstarted from '@/components/GetStarted.jsx';
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
