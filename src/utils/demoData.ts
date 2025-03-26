@@ -1,11 +1,12 @@
 
 import { 
   Transaction, 
-  Budget, 
-  Investment, 
-  ChatMessage, 
-  getUserData, 
-  updateUserData 
+  Budget,
+  Investment,
+  ChatMessage,
+  getUserData,
+  updateUserData,
+  InvestmentHolding
 } from './localStorage';
 
 // Generate random transactions
@@ -36,17 +37,17 @@ const generateTransactions = (): Transaction[] => {
     const merchant = merchantList[Math.floor(Math.random() * merchantList.length)];
     
     // Random amount between $5 and $500
-    const amount = -(Math.floor(Math.random() * 49500) / 100 + 5).toFixed(2);
-    
+    const amount = parseFloat((-(Math.floor(Math.random() * 49500) / 100 + 5)).toFixed(2));
+
     transactions.push({
       id: `txn-${Date.now()}-${i}`,
       date: transactionDate.toISOString(),
       description: merchant,
-      amount: parseFloat(amount),
-      category
+      amount: amount,
+      category,
     });
   }
-  
+
   // Add a few income transactions
   const incomeDescriptions = ['Salary Deposit', 'Freelance Payment', 'Investment Return', 'Client Payment', 'Bonus'];
   
@@ -126,47 +127,32 @@ const generateBudgets = (): Budget[] => {
 };
 
 // Generate investment suggestions
-const generateInvestments = (): Investment[] => {
+const generateInvestments = (): InvestmentHolding[] => {
   return [
     {
-      id: 'inv-1',
+      type: 'ETF',
       name: 'Balanced Growth Portfolio',
-      type: 'ETF',
-      riskLevel: 'Medium',
-      returnRate: 8.4,
-      description: 'A diversified mix of stocks and bonds designed for steady long-term growth with moderate risk.'
+      value: 10000
     },
     {
-      id: 'inv-2',
-      name: 'Sustainable Future Fund',
       type: 'Mutual Fund',
-      riskLevel: 'Medium',
-      returnRate: 7.5,
-      description: 'Focused on companies committed to environmental sustainability and social responsibility.'
+      name: 'Sustainable Future Fund',
+      value: 15000
     },
     {
-      id: 'inv-3',
+      type: 'ETF',
       name: 'Technology Innovation Index',
-      type: 'ETF',
-      riskLevel: 'High',
-      returnRate: 12.8,
-      description: 'Tracks leading technology companies at the forefront of innovation and digital transformation.'
+      value: 20000
     },
     {
-      id: 'inv-4',
+      type: 'ETF',
       name: 'Global Dividend Aristocrats',
-      type: 'ETF',
-      riskLevel: 'Low',
-      returnRate: 5.7,
-      description: 'Companies with a history of consistently increasing dividend payments over time.'
+      value: 12000
     },
     {
-      id: 'inv-5',
-      name: 'Premium Bond Portfolio',
       type: 'Bonds',
-      riskLevel: 'Low',
-      returnRate: 4.2,
-      description: 'High-quality corporate and government bonds offering stable income with minimal risk.'
+      name: 'Premium Bond Portfolio',
+      value: 18000
     }
   ];
 };
@@ -204,21 +190,21 @@ const generateChatHistory = (): ChatMessage[] => {
 // Load demo data into localStorage
 export const loadDemoData = (): void => {
   const userData = getUserData();
-  
-  // Only load demo data if there's no existing data
-  if (userData.transactions.length === 0) {
+
+  // Only load demo data if there's no existing data and userData is properly structured
+  if (userData && userData.transactions && userData.transactions.length === 0) {
     updateUserData('transactions', generateTransactions());
   }
-  
-  if (userData.budgets.length === 0) {
+
+  if (userData && userData.budgets && userData.budgets.length === 0) {
     updateUserData('budgets', generateBudgets());
   }
-  
-  if (userData.investments.length === 0) {
+
+  if (userData && userData.investments && userData.investments.length === 0) {
     updateUserData('investments', generateInvestments());
   }
-  
-  if (userData.chatHistory.length === 0) {
+
+  if (userData && userData.chatHistory && userData.chatHistory.length === 0) {
     updateUserData('chatHistory', generateChatHistory());
   }
 };
