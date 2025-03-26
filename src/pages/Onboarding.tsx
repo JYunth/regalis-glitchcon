@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress'; // Import Progress component
+import { Transaction, Budget, Investment, ChatMessage, UserSettings } from '@/utils/localStorage';
 
 // Define the structure for the comprehensive profile
-interface IncomeSource { name: string; amount: number; }
-interface FinancialGoal { type: string; description: string; targetAmount: number; targetDate?: string; }
+export interface IncomeSource { name: string; amount: number; }
+export interface FinancialGoal { type: string; description: string; targetAmount: number; targetDate?: string; }
 // NEW data structures
-interface Asset { type: string; description: string; value: number; }
-interface Liability { type: string; description: string; balance: number; interestRate?: number; }
-interface InvestmentHolding { type: string; name: string; value: number; }
+export interface Asset { type: string; description: string; value: number; }
+export interface Liability { type: string; description: string; balance: number; interestRate?: number; }
+export interface InvestmentHolding { type: string; name: string; value: number; }
 
 interface UserFinancialProfile {
   incomeSources: IncomeSource[];
@@ -24,11 +25,21 @@ interface UserFinancialProfile {
   riskToleranceScore?: number;
   financialHealthScore?: number;
   onboardingComplete: boolean;
+  balance: number;
+  transactions: Transaction[];
+  budgets: Budget[];
+  investmentSuggestions: Investment[];
+  chatHistory: ChatMessage[];
+  settings: UserSettings;
 }
 
 const TOTAL_STEPS = 9; // Updated total number of steps
 
-const Onboarding: React.FC = () => {
+interface OnboardingProps {
+  balance?: number;
+}
+
+const Onboarding: React.FC<OnboardingProps> = ({ balance = 0 }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
@@ -85,22 +96,54 @@ const Onboarding: React.FC = () => {
     const calculatedRiskScore = Object.keys(riskAnswers).length; // Example: score based on number of answers
     const calculatedHealthScore = Object.keys(healthAnswers).length; // Example
 
-    const finalProfile: UserFinancialProfile = {
-      incomeSources: incomeSources.filter(s => s.name && s.amount > 0), // Clean up empty entries
+    // Get the existing userFinancialProfile from localStorage
+    let finalProfile: UserFinancialProfile = {} as UserFinancialProfile;
+    const existingProfileString = localStorage.getItem('userFinancialProfile');
+    if (existingProfileString) {
+      finalProfile = JSON.parse(existingProfileString) as UserFinancialProfile;
+    } else {
+      finalProfile = {
+        incomeSources: [],
+        expenseBudgets: {},
+        financialGoals: [],
+        assets: [],
+        liabilities: [],
+        investments: [],
+        riskToleranceScore: 0,
+        financialHealthScore: 0,
+        onboardingComplete: false,
+        balance: 0,
+        transactions: [],
+        budgets: [],
+        investmentSuggestions: [],
+        chatHistory: [],
+        settings: {
+          name: 'Alexandra Wilson',
+          email: 'alex@example.com',
+          currency: 'USD',
+          notifications: true,
+        }
+      };
+    }
+
+    finalProfile = {
+      ...finalProfile,
+      incomeSources: incomeSources.filter(s => s.name && s.amount > 0),
       expenseBudgets: expenseBudgets,
-      financialGoals: financialGoals.filter(g => g.type && g.targetAmount > 0), // Clean up empty entries
-      assets: assets.filter(a => a.type && a.value > 0), // NEW: Add assets
-      liabilities: liabilities.filter(l => l.type && l.balance > 0), // NEW: Add liabilities
-      investments: investments.filter(i => i.type && i.value > 0), // NEW: Add investments
+      financialGoals: financialGoals.filter(g => g.type && g.targetAmount > 0),
+      assets: assets.filter(a => a.type && a.value > 0),
+      liabilities: liabilities.filter(l => l.type && l.balance > 0),
+      investments: investments.filter(i => i.type && i.value > 0),
       riskToleranceScore: calculatedRiskScore,
       financialHealthScore: calculatedHealthScore,
       onboardingComplete: true,
+      balance: balance,
     };
 
     try {
       console.log('Saving final profile to local storage:', finalProfile);
       localStorage.setItem('userFinancialProfile', JSON.stringify(finalProfile));
-      navigate('/dashboard'); // Redirect to dashboard
+      navigate('/dashboard');
     } catch (err) {
       console.error('Failed to save final profile:', err);
       setError('Failed to save your information. Please try again.');

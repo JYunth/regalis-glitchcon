@@ -12,6 +12,9 @@ import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
+import AddTransaction from "./pages/AddTransaction";
+import CreateBudget from "./pages/CreateBudget";
+import Recommendations from "./pages/Recommendations";
 import ProtectedRoute from "./components/auth/ProtectedRoute"; // Import the ProtectedRoute component
 
 const queryClient = new QueryClient();
@@ -35,6 +38,11 @@ const App = () => (
           <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
           <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
+          {/* Quick Action Routes */}
+          <Route path="/transactions/add" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+          <Route path="/budgets/create" element={<ProtectedRoute><CreateBudget /></ProtectedRoute>} />
+          <Route path="/recommendations" element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
 
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />

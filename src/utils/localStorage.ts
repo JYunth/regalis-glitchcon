@@ -1,3 +1,5 @@
+import { IncomeSource, FinancialGoal } from '@/pages/Onboarding';
+
 // Type definitions for our data
 export interface Transaction {
   id: string;
@@ -41,28 +43,43 @@ export interface Asset { type: string; description: string; value: number; }
 export interface Liability { type: string; description: string; balance: number; interestRate?: number; }
 export interface InvestmentHolding { type: string; name: string; value: number; }
 
-export interface UserData {
+export interface UserFinancialProfile {
+  // From Onboarding.tsx
+  incomeSources: IncomeSource[];
+  expenseBudgets: { [category: string]: number };
+  financialGoals: FinancialGoal[];
+  assets: Asset[];
+  liabilities: Liability[];
+  investments: InvestmentHolding[]; // actual investments
+  riskToleranceScore?: number;
+  financialHealthScore?: number;
+  onboardingComplete: boolean;
+
+  // From localStorage.ts
   balance: number;
   transactions: Transaction[];
   budgets: Budget[];
-  investments: Investment[]; // investment suggestions
-  investmentHoldings: InvestmentHolding[]; // actual investments
-  assets: Asset[];
-  liabilities: Liability[];
+  investmentSuggestions: Investment[]; // investment suggestions
   chatHistory: ChatMessage[];
   settings: UserSettings;
 }
 
 // Initialize with default data if none exists
-const initializeUserData = (): UserData => {
-  const defaultData = {
+const initializeUserData = (): UserFinancialProfile => {
+  const defaultData: UserFinancialProfile = {
+    incomeSources: [],
+    expenseBudgets: {},
+    financialGoals: [],
+    assets: [],
+    liabilities: [],
+    investments: [],
+    riskToleranceScore: 0,
+    financialHealthScore: 0,
+    onboardingComplete: false,
     balance: 24680.42,
     transactions: [],
     budgets: [],
-    investments: [], // investment suggestions
-    investmentHoldings: [], // actual investments
-    assets: [],
-    liabilities: [],
+    investmentSuggestions: [], // investment suggestions
     chatHistory: [],
     settings: {
       name: 'Alexandra Wilson',
@@ -72,13 +89,13 @@ const initializeUserData = (): UserData => {
     }
   };
   
-  localStorage.setItem('regalis_user_data', JSON.stringify(defaultData));
+  localStorage.setItem('userFinancialProfile', JSON.stringify(defaultData));
   return defaultData;
 };
 
 // Get user data from localStorage
-export const getUserData = (): UserData => {
-  const data = localStorage.getItem('regalis_user_data');
+export const getUserData = (): UserFinancialProfile => {
+  const data = localStorage.getItem('userFinancialProfile');
   
   if (!data) {
     return initializeUserData();
@@ -88,12 +105,12 @@ export const getUserData = (): UserData => {
 };
 
 // Save user data to localStorage
-export const saveUserData = (data: UserData): void => {
-  localStorage.setItem('regalis_user_data', JSON.stringify(data));
+export const saveUserData = (data: UserFinancialProfile): void => {
+  localStorage.setItem('userFinancialProfile', JSON.stringify(data));
 };
 
 // Update specific parts of user data
-export const updateUserData = <K extends keyof UserData>(key: K, value: UserData[K]): UserData => {
+export const updateUserData = <K extends keyof UserFinancialProfile>(key: K, value: UserFinancialProfile[K]): UserFinancialProfile => {
   const userData = getUserData();
   userData[key] = value;
   saveUserData(userData);
@@ -102,5 +119,5 @@ export const updateUserData = <K extends keyof UserData>(key: K, value: UserData
 
 // Clear all user data
 export const clearUserData = (): void => {
-  localStorage.removeItem('regalis_user_data');
+  localStorage.removeItem('userFinancialProfile');
 };

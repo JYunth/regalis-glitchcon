@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import GlassCard from '../ui/GlassCard';
-import { getUserData } from '@/utils/localStorage';
+import { getUserData, UserFinancialProfile } from '@/utils/localStorage';
 
 const BalanceCard = () => {
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Simulate loading
     const timer = setTimeout(() => {
-      const userData = getUserData();
+      const userData: UserFinancialProfile = getUserData();
       setBalance(userData.balance);
       setIsLoading(false);
     }, 800);
