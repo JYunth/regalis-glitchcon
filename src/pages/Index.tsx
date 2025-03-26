@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
-
+import Getstarted from '@/components/GetStarted';
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
@@ -22,9 +22,7 @@ const Index = () => {
               Experience financial clarity through thoughtful design and intelligent insights. Regalis brings an air of refinement to your financial journey.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <Link to="/dashboard" className="gold-btn">
-                Get Started
-              </Link>
+              <Getstarted />
               <button className="border border-subtle-gray text-deep-charcoal/80 font-medium px-6 py-3 rounded-md hover:bg-subtle-gray/10 transition-all duration-300">
                 Learn More
               </button>
