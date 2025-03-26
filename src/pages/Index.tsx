@@ -46,7 +46,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <GlassCard className="animate-fade-in" style={{ animationDelay: '0.1s' }} hoverEffect>
+            <GlassCard className="animate-fade-in" hoverEffect animationDelay="0.1s">
               <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-6">
                 <span className="text-soft-gold font-serif text-xl">01</span>
               </div>
@@ -56,7 +56,7 @@ const Index = () => {
               </p>
             </GlassCard>
             
-            <GlassCard className="animate-fade-in" style={{ animationDelay: '0.2s' }} hoverEffect>
+            <GlassCard className="animate-fade-in" hoverEffect animationDelay="0.2s">
               <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-6">
                 <span className="text-soft-gold font-serif text-xl">02</span>
               </div>
@@ -66,7 +66,7 @@ const Index = () => {
               </p>
             </GlassCard>
             
-            <GlassCard className="animate-fade-in" style={{ animationDelay: '0.3s' }} hoverEffect>
+            <GlassCard className="animate-fade-in" hoverEffect animationDelay="0.3s">
               <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-6">
                 <span className="text-soft-gold font-serif text-xl">03</span>
               </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { loadDemoData } from '@/utils/demoData';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,7 +8,13 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
+  const developerModeEnabled = localStorage.getItem('developerModeEnabled') === 'true';
   let isOnboardingComplete = false;
+
+  if (developerModeEnabled) {
+    loadDemoData();
+    return <>{children}</>; // Bypass onboarding and render children
+  }
 
   try {
     const profileString = localStorage.getItem('userFinancialProfile');
