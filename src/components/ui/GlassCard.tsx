@@ -8,6 +8,7 @@ interface GlassCardProps {
   padding?: 'none' | 'small' | 'medium' | 'large';
   hoverEffect?: boolean;
   onClick?: () => void;
+  animationDelay?: string;
 }
 
 const GlassCard = ({ 
@@ -15,7 +16,8 @@ const GlassCard = ({
   className, 
   padding = 'medium', 
   hoverEffect = false,
-  onClick 
+  onClick,
+  animationDelay
 }: GlassCardProps) => {
   const paddingClasses = {
     none: '',
@@ -34,6 +36,7 @@ const GlassCard = ({
         className
       )}
       onClick={onClick}
+      style={{ animationDelay }}
     >
       {children}
     </div>

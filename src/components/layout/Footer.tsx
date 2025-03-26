@@ -1,8 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const Footer = () => {
+  const [developerMode, setDeveloperMode] = useState(false);
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem('developerModeEnabled');
+    if (storedValue !== null) {
+      setDeveloperMode(storedValue === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('developerModeEnabled', String(developerMode));
+  }, [developerMode]);
+
   return (
     <footer className="bg-warm-beige py-12 px-6">
       <div className="container mx-auto">
@@ -48,10 +63,14 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-subtle-gray/30">
+        <div className="mt-12 pt-8 border-t border-subtle-gray/30 flex items-center justify-between">
           <p className="text-center text-deep-charcoal/50 text-sm">
             © {new Date().getFullYear()} Regalis. All rights reserved.
           </p>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="developer-mode" className="text-deep-charcoal/70 text-sm">Developer Mode:</Label>
+            <Switch id="developer-mode" checked={developerMode} onCheckedChange={(checked) => setDeveloperMode(checked)} />
+          </div>
         </div>
       </div>
     </footer>
