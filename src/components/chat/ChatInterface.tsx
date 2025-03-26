@@ -3,7 +3,8 @@ import GlassCard from '../ui/GlassCard';
 import { ChatMessage, getUserData, updateUserData } from '@/utils/localStorage';
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY});
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
