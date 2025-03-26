@@ -9,7 +9,7 @@ const LoginSection = () => {
       {isSignedIn ? (
         <>
           <UserButton afterSignOutUrl="/" />
-          <Link to="/dashboard" className="gold-btn-small ml-4">Dashboard</Link>
+          
         </>
       ) : (
         <SignInButton mode="modal">

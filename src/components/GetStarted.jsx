@@ -8,12 +8,13 @@ const Getstarted = () => {
     <div>
       {isSignedIn ? (
         <>
-          <UserButton afterSignOutUrl="/" />
-          <Link to="/dashboard" className="gold-btn-large ml-4">Dashboard</Link>
+         
+         <Link to="/dashboard" className="gold-btn-small ml-2 px-6 py-3 text-lg">Dashboard</Link>
+
         </>
       ) : (
         <SignInButton mode="modal">
-          <button className="gold-btn-small">Get STarted</button>
+           <Link  className="gold-btn-small ml-2 px-6 py-3 text-lg">Get Started</Link>
         </SignInButton>
       )}
     </div>
