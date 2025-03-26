@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
@@ -9,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { loadDemoData } from '@/utils/demoData';
 
 const BudgetPage = () => {
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [monthlyTotals, setMonthlyTotals] = useState<{name: string, spent: number}[]>([]);
@@ -125,7 +128,7 @@ const BudgetPage = () => {
               </div>
             </GlassCard>
             
-            <GlassCard className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <GlassCard className="animate-fade-in">
               <h3 className="text-deep-charcoal/60 text-sm font-sans">Spent This Month</h3>
               {isLoading ? (
                 <div className="h-10 w-32 bg-subtle-gray/20 animate-pulse mt-2 rounded-md"></div>
@@ -141,7 +144,7 @@ const BudgetPage = () => {
               </div>
             </GlassCard>
             
-            <GlassCard className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <GlassCard className="animate-fade-in">
               <h3 className="text-deep-charcoal/60 text-sm font-sans">Remaining</h3>
               {isLoading ? (
                 <div className="h-10 w-32 bg-subtle-gray/20 animate-pulse mt-2 rounded-md"></div>
@@ -190,7 +193,7 @@ const BudgetPage = () => {
                 <h3 className="font-serif text-xl text-deep-charcoal mb-6">Budget Controls</h3>
                 
                 <div className="space-y-4">
-                  <button className="gold-btn w-full">
+                  <button className="gold-btn w-full" onClick={() => navigate('/budget-management')}>
                     Create New Budget
                   </button>
                   
@@ -198,7 +201,7 @@ const BudgetPage = () => {
                     Export Budget Report
                   </button>
                   
-                  <button className="border border-subtle-gray text-deep-charcoal/80 font-medium px-4 py-3 rounded-md hover:bg-subtle-gray/10 transition-all duration-300 w-full">
+                  <button className="border border-subtle-gray text-deep-charcoal/80 font-medium px-4 py-3 rounded-md hover:bg-subtle-gray/10 transition-all duration-300 w-full" onClick={() => navigate('/budget-management')}>
                     Set Budget Alerts
                   </button>
                 </div>

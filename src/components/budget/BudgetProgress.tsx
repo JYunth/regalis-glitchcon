@@ -43,9 +43,9 @@ const BudgetProgress = () => {
     <GlassCard className="w-full">
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-serif text-xl text-deep-charcoal">Budget Overview</h3>
-        <button className="gold-btn-small">
-          Adjust Budgets
-        </button>
+        <a href="/budget-management" className="gold-btn-small">
+          Configure
+        </a>
       </div>
 
       {isLoading ? (

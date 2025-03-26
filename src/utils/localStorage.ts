@@ -14,6 +14,7 @@ export interface Budget {
   category: string;
   allocated: number;
   spent: number;
+  alertThreshold?: number;
 }
 
 export interface Investment {

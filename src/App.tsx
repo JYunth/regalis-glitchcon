@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import AddTransaction from "./pages/AddTransaction";
 import CreateBudget from "./pages/CreateBudget";
 import Recommendations from "./pages/Recommendations";
+import BudgetManagement from "./pages/BudgetManagement";
 import ProtectedRoute from "./components/auth/ProtectedRoute"; // Import the ProtectedRoute component
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/transactions/add" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
           <Route path="/budgets/create" element={<ProtectedRoute><CreateBudget /></ProtectedRoute>} />
           <Route path="/recommendations" element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
+          <Route path="/budget-management" element={<ProtectedRoute><BudgetManagement /></ProtectedRoute>} />
 
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
