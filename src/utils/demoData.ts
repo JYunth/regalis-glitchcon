@@ -192,7 +192,7 @@ export const loadDemoData = (): void => {
   const transactions = generateTransactions();
   const budgets = generateBudgets();
   const investments = generateInvestments();
-  const chatHistory = generateChatHistory();
+  const chatHistory: ChatMessage[] = []; // Initialize as empty array
   const userData = getUserData();
 
   const demoData: UserFinancialProfile = {

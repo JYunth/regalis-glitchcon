@@ -38,7 +38,8 @@ const App = () => (
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
           <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
-          <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+          {/* Added mt-16 wrapper */}
+          <Route path="/chat" element={<ProtectedRoute><div className="mt-16"><Chat /></div></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
 
