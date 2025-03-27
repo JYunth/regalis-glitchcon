@@ -55,8 +55,12 @@ export interface UserFinancialProfile {
   riskToleranceScore?: number;
   financialHealthScore?: number;
   onboardingComplete: boolean;
+  
+  // Added for Investment Performance History (Phase A.4)
+  portfolioHistory: { timestamp: string; totalValue: number }[];
+  lastHistoryUpdateTimestamp?: string;
 
-  // From localStorage.ts
+  // From localStorage.ts (existing)
   balance: number;
   transactions: Transaction[];
   budgets: Budget[];
@@ -87,7 +91,10 @@ const initializeUserData = (): UserFinancialProfile => {
       email: 'alex@example.com',
       currency: 'USD',
       notifications: true,
-    }
+    },
+    // Initialize new history fields directly in the object literal
+    portfolioHistory: [],
+    lastHistoryUpdateTimestamp: undefined 
   };
   
   localStorage.setItem('userFinancialProfile', JSON.stringify(defaultData));

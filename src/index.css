@@ -60,11 +60,18 @@
   }
   
   .gold-btn {
-    @apply border border-soft-gold text-soft-gold font-medium px-6 py-3 rounded-md hover:bg-soft-gold hover:text-white transition-all duration-300 shadow-sm hover:shadow-gold-subtle;
+    /* Ensure default text color is high contrast */
+    @apply border border-soft-gold text-deep-charcoal font-medium px-6 py-3 rounded-md hover:bg-soft-gold hover:text-white transition-all duration-300 shadow-sm hover:shadow-gold-subtle;
   }
 
   .gold-btn-small {
-    @apply border border-soft-gold text-soft-gold font-medium px-4 py-2 text-sm rounded-md hover:bg-soft-gold hover:text-white transition-all duration-300 shadow-sm hover:shadow-gold-subtle;
+    /* Ensure default text color is high contrast */
+    @apply border border-soft-gold text-deep-charcoal font-medium px-4 py-2 text-sm rounded-md hover:bg-soft-gold hover:text-white transition-all duration-300 shadow-sm hover:shadow-gold-subtle;
+  }
+
+  /* Ensure global focus-visible style is present */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
   
   .section-padding {

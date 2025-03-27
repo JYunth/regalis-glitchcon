@@ -64,6 +64,17 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Added dedicated chart color palette (Phase A.3)
+				chart: {
+					blue: '#88A0A8',   // Muted Blue/Gray
+					green: '#A3C9A8',  // Soft Emerald (existing)
+					yellow: '#E4CDA7', // Soft Gold (existing)
+					red: '#D87C7C',    // Muted Red (existing)
+					purple: '#B0A8B9', // Muted Purple/Gray
+					teal: '#97C1A9',   // Soft Teal
+					orange: '#F0B7A4', // Soft Orange/Peach
+					pink: '#F2B6C1'    // Soft Pink
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
