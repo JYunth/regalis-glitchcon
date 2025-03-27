@@ -3,16 +3,15 @@ import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import ChatInterface from '@/components/chat/ChatInterface';
 import ChatBar from '@/components/chat/ChatBar';
-import { loadDemoData } from '@/utils/demoData';
-import { useEffect } from 'react';
+// Removed loadDemoData import
+import { updateUserData } from '@/utils/localStorage'; // Import updateUserData
+// Removed useEffect import
 
 const Chat = () => {
-  useEffect(() => {
-    loadDemoData();
-  }, []);
+  // Removed useEffect hook that loaded demo data
 
   const handleClearChat = () => {
-    localStorage.removeItem('userData');
+    updateUserData('chatHistory', []); // Clear only chat history
     window.location.reload();
   };
 
