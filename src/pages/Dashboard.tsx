@@ -16,17 +16,31 @@ import PersonalizedFinancialInsightsSection from '@/components/dashboard/widgets
 import QuickActionButtons from '@/components/dashboard/widgets/QuickActionButtons';
 
 const Dashboard = () => {
-  const [userFinancialProfile, setUserFinancialProfile] = useState<UserFinancialProfile>({} as UserFinancialProfile);
+  const [userFinancialProfile, setUserFinancialProfile] = useState<UserFinancialProfile>({
+    assets: [],
+    liabilities: [],
+    incomeSources: [],
+    expenseBudgets: {},
+  } as UserFinancialProfile);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load demo data when component mounts
     loadDemoData();
 
     // Simulate loading
     const timer = setTimeout(() => {
       const userData = getUserData();
-      setUserFinancialProfile(userData);
+      console.log('userData:', userData);
+      setUserFinancialProfile({
+        ...{
+          assets: [],
+          liabilities: [],
+          incomeSources: [],
+          expenseBudgets: {},
+        },
+        ...userData,
+      });
+      console.log('userFinancialProfile:', userFinancialProfile);
       setIsLoading(false);
     }, 800);
 

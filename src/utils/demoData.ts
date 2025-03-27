@@ -1,4 +1,3 @@
-
 import { 
   Transaction, 
   Budget,
@@ -6,7 +5,9 @@ import {
   ChatMessage,
   getUserData,
   updateUserData,
-  InvestmentHolding
+  InvestmentHolding,
+  UserFinancialProfile,
+  saveUserData
 } from './localStorage';
 
 // Generate random transactions
@@ -187,24 +188,35 @@ const generateChatHistory = (): ChatMessage[] => {
   ];
 };
 
-// Load demo data into localStorage
 export const loadDemoData = (): void => {
+  const transactions = generateTransactions();
+  const budgets = generateBudgets();
+  const investments = generateInvestments();
+  const chatHistory = generateChatHistory();
   const userData = getUserData();
 
-  // Only load demo data if there's no existing data and userData is properly structured
-  if (userData && userData.transactions && userData.transactions.length === 0) {
-    updateUserData('transactions', generateTransactions());
-  }
+  const demoData: UserFinancialProfile = {
+    incomeSources: [],
+    expenseBudgets: {},
+    financialGoals: [],
+    assets: [],
+    liabilities: [],
+    investments: investments,
+    riskToleranceScore: 0,
+    financialHealthScore: 0,
+    onboardingComplete: userData.onboardingComplete || false,
+    balance: 24680.42,
+    transactions: transactions,
+    budgets: budgets,
+    investmentSuggestions: [],
+    chatHistory: chatHistory,
+    settings: {
+      name: 'Alexandra Wilson',
+      email: 'alex@example.com',
+      currency: 'USD',
+      notifications: true,
+    }
+  };
 
-  if (userData && userData.budgets && userData.budgets.length === 0) {
-    updateUserData('budgets', generateBudgets());
-  }
-
-  if (userData && userData.investments && userData.investments.length === 0) {
-    updateUserData('investments', generateInvestments());
-  }
-
-  if (userData && userData.chatHistory && userData.chatHistory.length === 0) {
-    updateUserData('chatHistory', generateChatHistory());
-  }
+  saveUserData(demoData);
 };

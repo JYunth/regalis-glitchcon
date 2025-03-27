@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
+import { getUserData, saveUserData } from '@/utils/localStorage';
+
 const Footer = () => {
   const [developerMode, setDeveloperMode] = useState(false);
 
@@ -16,6 +18,11 @@ const Footer = () => {
 
   useEffect(() => {
     localStorage.setItem('developerModeEnabled', String(developerMode));
+    if (developerMode) {
+      const userData = getUserData();
+      userData.onboardingComplete = true;
+      saveUserData(userData);
+    }
   }, [developerMode]);
 
   return (
