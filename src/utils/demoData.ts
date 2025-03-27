@@ -192,31 +192,36 @@ export const loadDemoData = (): void => {
   const transactions = generateTransactions();
   const budgets = generateBudgets();
   const investments = generateInvestments();
-  const chatHistory: ChatMessage[] = []; // Initialize as empty array
+  const chatHistory = generateChatHistory(); // Generate demo chat history
   const userData = getUserData();
 
-  const demoData: UserFinancialProfile = {
-    incomeSources: [],
-    expenseBudgets: {},
-    financialGoals: [],
-    assets: [],
-    liabilities: [],
-    investments: investments,
-    riskToleranceScore: 0,
-    financialHealthScore: 0,
-    onboardingComplete: userData.onboardingComplete || false,
-    balance: 24680.42,
-    transactions: transactions,
-    budgets: budgets,
-    investmentSuggestions: [],
-    chatHistory: chatHistory,
-    settings: {
+  // Only load demo data if certain fields are missing (e.g., transactions)
+  // Crucially, preserve existing onboarding data like incomeSources, expenseBudgets, etc.
+  const updatedProfile: UserFinancialProfile = {
+    ...userData, // Start with existing user data
+    balance: userData.balance || 24680.42, // Use existing balance or default
+    transactions: userData.transactions?.length > 0 ? userData.transactions : generateTransactions(), // Add demo transactions only if none exist
+    budgets: userData.budgets?.length > 0 ? userData.budgets : generateBudgets(), // Add demo budgets only if none exist
+    investments: userData.investments?.length > 0 ? userData.investments : generateInvestments(), // Add demo investments only if none exist
+    chatHistory: userData.chatHistory?.length > 0 ? userData.chatHistory : chatHistory, // Add demo chat history only if none exists
+    // Ensure settings are preserved or use defaults if missing
+    settings: userData.settings || {
       name: 'Alexandra Wilson',
       email: 'alex@example.com',
       currency: 'USD',
       notifications: true,
-    }
+    },
+    // IMPORTANT: Do NOT overwrite these fields from onboarding if they exist
+    incomeSources: userData.incomeSources || [],
+    expenseBudgets: userData.expenseBudgets || {},
+    financialGoals: userData.financialGoals || [],
+    assets: userData.assets || [],
+    liabilities: userData.liabilities || [],
+    riskToleranceScore: userData.riskToleranceScore,
+    financialHealthScore: userData.financialHealthScore,
+    onboardingComplete: userData.onboardingComplete || false,
+    investmentSuggestions: userData.investmentSuggestions || [], // Preserve existing suggestions
   };
 
-  saveUserData(demoData);
+  saveUserData(updatedProfile);
 };

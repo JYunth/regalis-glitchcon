@@ -16,6 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Calendar as CalendarIcon } from "lucide-react" // Renamed to avoid conflict
+import { cn } from "@/lib/utils" // Assuming cn utility exists for conditional classes
 
 import { getUserData, updateUserData } from "@/utils/localStorage"
 import { Transaction } from "@/utils/localStorage"
@@ -35,14 +39,21 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose }) 
   const [title, setTitle] = useState<string>('');
   const [amount, setAmount] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
+  const [time, setTime] = useState<string>('00:00'); // Added time state
 
   useEffect(() => {
     const userData = getUserData();
-    setIncomeSources(userData.incomeSources.map(source => source.name));
-    setExpenseCategories(Object.keys(userData.expenseBudgets));
+    const sources = userData.incomeSources || []; // Default to empty array if undefined/null
+    const budgets = userData.expenseBudgets || {}; // Default to empty object if undefined/null
+    setIncomeSources(sources.map(source => source.name));
+    setExpenseCategories(Object.keys(budgets));
   }, []);
 
-  const tagOptions = transactionType === 'income' ? incomeSources : expenseCategories;
+  // Dynamically generate tag options including "Other"
+  const tagOptions = [
+    ...(transactionType === 'income' ? incomeSources : expenseCategories),
+    'Other'
+  ];
 
   const handleSubmit = () => {
     if (!title || !selectedTag || !date || !amount) {
@@ -50,9 +61,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose }) 
       return;
     }
 
+    // Combine date and time
+    const [hours, minutes] = time.split(':').map(Number);
+    const combinedDate = new Date(date);
+    combinedDate.setHours(hours, minutes, 0, 0); // Set hours and minutes, reset seconds/ms
+
     const newTransaction: Transaction = {
       id: uuidv4(),
-      date: date.toISOString(),
+      date: combinedDate.toISOString(), // Use combined date and time
       description: description,
       amount: transactionType === 'income' ? amount : -amount,
       category: selectedTag,
@@ -67,7 +83,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose }) 
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <AlertDialogHeader>
           <AlertDialogTitle>Add New Transaction</AlertDialogTitle>
           <AlertDialogDescription>
@@ -120,13 +136,42 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose }) 
 
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="date" className="text-right">
-                  Date and Time
+                  Date
                 </Label>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "col-span-3 justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="time" className="text-right">
+                  Time
+                </Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={time}
                   className="col-span-3"
+                  onChange={(e) => setTime(e.target.value)}
                 />
               </div>
 

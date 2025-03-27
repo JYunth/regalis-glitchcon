@@ -109,7 +109,7 @@ const ChatInterface = () => {
                   <div key={msg.id} className={`mb-4 animate-slide-in flex ${isUser ? 'justify-end' : 'justify-start'}`} style={{ animationDelay: `${index * 0.1}s` }}>
                     {!isUser && (
                       <Avatar className="mr-3 h-8 w-8">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="AI Avatar" />
+                        <AvatarImage src="/ai.png" alt="AI Avatar" />
                         <AvatarFallback>AI</AvatarFallback>
                       </Avatar>
                     )}
@@ -119,7 +119,7 @@ const ChatInterface = () => {
                     </div>
                     {isUser && (
                       <Avatar className="ml-3 h-8 w-8">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
+                        <AvatarImage src="/user.jpg" alt="User Avatar" />
                         <AvatarFallback>US</AvatarFallback>
                       </Avatar>
                     )}
@@ -129,7 +129,7 @@ const ChatInterface = () => {
               {isTyping && (
                 <div className="flex justify-start mb-4 animate-fade-in">
                   <Avatar className="mr-3 h-8 w-8">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="AI Avatar" />
+                    <AvatarImage src="/ai.png" alt="AI Avatar" />
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                   <div className="glass p-4 rounded-xl">
