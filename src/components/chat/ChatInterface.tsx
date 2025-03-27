@@ -23,9 +23,23 @@ const ChatInterface = () => {
       if (!userData.chatHistory) {
         userData.chatHistory = [];
         // Optionally save the initialized empty array back to storage
-        // updateUserData('chatHistory', []); 
+        // updateUserData('chatHistory', []);
       }
-      setMessages(userData.chatHistory);
+
+      // --- Add Initial AI Greeting if history is empty ---
+      if (userData.chatHistory.length === 0) {
+        const initialAiMessage: ChatMessage = {
+          id: `msg-${Date.now()}-ai-init`,
+          sender: 'ai',
+          message: "Hi there! I'm Regalis AI, your financial assistant. How can I help you manage your finances today?",
+          timestamp: new Date().toISOString()
+        };
+        userData.chatHistory.push(initialAiMessage); // Add to the array before setting state/saving
+        updateUserData('chatHistory', userData.chatHistory); // Save updated history with greeting
+      }
+      // --- End Initial Greeting ---
+
+      setMessages(userData.chatHistory); // Set state with potentially updated history
       setIsLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
@@ -40,11 +54,23 @@ const ChatInterface = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const fetchAIResponse = async (message: string) => {
+  // Updated fetchAIResponse to accept dynamic system prompt and history
+  const fetchAIResponse = async (systemPrompt: string, history: ChatMessage[]) => {
+    // Map chat history to Gemini's required format (user/model roles)
+    const formattedHistory = history.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.message }]
+    }));
+
     try {
+      // Include dynamic system prompt before the rest of the history
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: [{ parts: [{ text: message }] }]
+        contents: [
+          { role: "user", parts: [{ text: systemPrompt }] }, // Use dynamic prompt
+          { role: "model", parts: [{ text: "Understood. I have reviewed the financial summary and am ready to assist." }] }, // Initial model response
+          ...formattedHistory // Spread the rest of the conversation history
+        ]
       });
       // Ensure response.text exists before trimming
       return response?.text?.trim() ?? 'Sorry, I could not generate a response.';
@@ -53,6 +79,7 @@ const ChatInterface = () => {
       return 'Sorry, I could not process that request.';
     }
   };
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,9 +98,26 @@ const ChatInterface = () => {
     updateUserData('chatHistory', updatedMessages);
     const currentMessage = newMessage; // Store current message before clearing
     setNewMessage('');
+    const currentMessageText = newMessage; // Store current message text before clearing
+    setNewMessage('');
     setIsTyping(true);
 
-    const aiResponse = await fetchAIResponse(currentMessage); // Use stored message
+    // --- Construct Dynamic System Prompt ---
+    const userData = getUserData();
+    const financialSummary = `
+Current Balance: ${userData.settings.currency} ${userData.balance.toFixed(2)}
+Top Budgets: ${Object.entries(userData.expenseBudgets).slice(0, 3).map(([cat, val]) => `${cat}: ${userData.settings.currency} ${val}`).join(', ')}
+Primary Goal: ${userData.financialGoals.length > 0 ? userData.financialGoals[0].type : 'Not set'} 
+Risk Tolerance Score: ${userData.riskToleranceScore ?? 'Not set'}
+Financial Health Score: ${userData.financialHealthScore ?? 'Not set'}
+    `.trim(); // Use trim() to remove leading/trailing whitespace from template literal
+
+    const baseSystemPrompt = "You are Regalis AI, a helpful financial assistant integrated into the Regalis app. Your goal is to provide concise, actionable financial advice based on the user's conversation and their financial summary provided below. Keep responses brief and focused on helping the user manage their finances effectively within the app context.";
+    const systemPromptWithData = `${baseSystemPrompt}\n\n--- User Financial Summary ---\n${financialSummary}\n--- End Summary ---`;
+    // --- End Prompt Construction ---
+
+    // Pass the dynamic prompt and entire updated history to fetchAIResponse
+    const aiResponse = await fetchAIResponse(systemPromptWithData, updatedMessages); 
     
     const aiMessage: ChatMessage = {
       id: `msg-${Date.now()}-ai`,
