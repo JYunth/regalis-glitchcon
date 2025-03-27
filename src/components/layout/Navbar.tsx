@@ -29,6 +29,7 @@ const Navbar = () => {
     { name: "Transactions", path: "/transactions" },
     { name: "Budget", path: "/budget" },
     { name: "Investments", path: "/investments" },
+    { name: "Insights", path: "/insights" },
     { name: "Chat", path: "/chat" },
     { name: "Settings", path: "/settings" },
   ];
