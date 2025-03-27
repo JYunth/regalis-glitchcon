@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom'; // Import useLocation
 import { Button } from "@/components/ui/button";
 import TransactionModal from "@/components/TransactionModal";
 import { getUserData, Transaction, UserFinancialProfile } from "@/utils/localStorage"; // Import UserFinancialProfile
@@ -13,8 +14,16 @@ const Transactions = () => {
   // Add state for incomeSources and expenseBudgets as planned
   const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [expenseBudgets, setExpenseBudgets] = useState<{ [category: string]: number }>({});
+  const location = useLocation(); // Get location object
 
   useEffect(() => {
+    // Check location state to open modal
+    if (location.state?.openAddTransactionModal) {
+      setIsModalOpen(true);
+      // Optional: Clear the state after using it, though might not be strictly necessary
+      // window.history.replaceState({}, document.title)
+    }
+
     const userData: UserFinancialProfile = getUserData();
     // Sort transactions by date descending
     const sortedTransactions = [...userData.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

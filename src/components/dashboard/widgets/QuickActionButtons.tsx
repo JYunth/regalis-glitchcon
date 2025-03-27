@@ -8,13 +8,14 @@ const QuickActionButtons = () => {
     <GlassCard className="w-full">
       <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
       <div className="flex flex-col gap-4">
-        <Link to="/transactions/add">
+        {/* Pass state to signal Transactions page to open the modal */}
+        <Link to="/transactions" state={{ openAddTransactionModal: true }}>
           <Button className="w-full">Add Transaction</Button>
         </Link>
-        <Link to="/budgets/create">
+        <Link to="/budget-management">
           <Button className="w-full">Create Budget</Button>
         </Link>
-        <Link to="/recommendations">
+        <Link to="/insights">
           <Button className="w-full">View Recommendations</Button>
         </Link>
       </div>

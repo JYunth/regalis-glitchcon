@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import BalanceCard from '@/components/dashboard/BalanceCard';
 import RecentTransactions from '@/components/dashboard/RecentTransactions';
-import SpendingChart from '@/components/dashboard/SpendingChart';
 import BudgetProgress from '@/components/budget/BudgetProgress';
 import { loadDemoData } from '@/utils/demoData';
 import { getUserData, UserFinancialProfile } from '@/utils/localStorage';
@@ -60,40 +58,23 @@ const Dashboard = () => {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="md:col-span-2">
-                  <FinancialOverviewWidget userFinancialProfile={userFinancialProfile} />
-                </div>
-                <div className="md:col-span-1">
-                  <QuickActionButtons />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <FinancialOverviewWidget userFinancialProfile={userFinancialProfile} />
                 <SpendingBreakdownChart userFinancialProfile={userFinancialProfile} />
-                <InvestmentPerformanceTracker userFinancialProfile={userFinancialProfile} />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <DebtReductionProgress userFinancialProfile={userFinancialProfile} />
                 <PersonalizedFinancialInsightsSection userFinancialProfile={userFinancialProfile} />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="md:col-span-2">
-                  <BalanceCard />
-                </div>
-                <div className="md:col-span-1">
-                  <SpendingChart />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <RecentTransactions />
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <QuickActionButtons />
+                <InvestmentPerformanceTracker userFinancialProfile={userFinancialProfile} />
                 <BudgetProgress />
               </div>
-            </>
+            </div>
           )}
         </div>
       </main>
