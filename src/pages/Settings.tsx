@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
 import { UserSettings, getUserData, updateUserData } from '@/utils/localStorage';
 import { loadDemoData } from '@/utils/demoData';
+import { useToast } from "@/components/ui/use-toast"
 
 const Settings = () => {
   const [settings, setSettings] = useState<UserSettings>({
@@ -15,6 +16,7 @@ const Settings = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast()
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
@@ -50,30 +52,14 @@ const Settings = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Update settings in localStorage
-      updateUserData('settings', settings);
-      setIsSaving(false);
-      setSuccessMessage('Settings saved successfully');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-    }, 1000);
-  };
 
-  const currencies = [
-    { code: 'USD', name: 'US Dollar ($)' },
-    { code: 'EUR', name: 'Euro (€)' },
-    { code: 'GBP', name: 'British Pound (£)' },
-    { code: 'JPY', name: 'Japanese Yen (¥)' },
-    { code: 'CAD', name: 'Canadian Dollar (C$)' },
-    { code: 'AUD', name: 'Australian Dollar (A$)' },
-    { code: 'CHF', name: 'Swiss Franc (Fr)' },
-  ];
+    // Update settings in localStorage
+    updateUserData('settings', settings);
+    setIsSaving(false);
+    toast({
+      title: "Settings saved successfully",
+    })
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -146,23 +132,6 @@ const Settings = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-deep-charcoal/70 text-sm mb-2" htmlFor="currency">
-                          Currency
-                        </label>
-                        <select
-                          id="currency"
-                          name="currency"
-                          value={settings.currency}
-                          onChange={handleInputChange}
-                          className="w-full border border-subtle-gray bg-white/50 rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-soft-gold"
-                        >
-                          {currencies.map(currency => (
-                            <option key={currency.code} value={currency.code}>{currency.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
                         <label className="block text-deep-charcoal/70 text-sm mb-2" htmlFor="notifications">
                           Notifications
                         </label>
@@ -180,27 +149,6 @@ const Settings = () => {
                           </label>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  {/* Security Section */}
-                  <div className="pt-6 border-t border-subtle-gray/20">
-                    <h2 className="font-serif text-xl text-deep-charcoal mb-4">Security</h2>
-                    
-                    <div className="space-y-4">
-                      <button
-                        type="button"
-                        className="border border-subtle-gray text-deep-charcoal/80 font-medium px-4 py-2 rounded-md hover:bg-subtle-gray/10 transition-all duration-300"
-                      >
-                        Change Password
-                      </button>
-                      
-                      <button
-                        type="button"
-                        className="border border-subtle-gray text-deep-charcoal/80 font-medium px-4 py-2 rounded-md hover:bg-subtle-gray/10 transition-all duration-300 ml-2"
-                      >
-                        Enable Two-Factor Authentication
-                      </button>
                     </div>
                   </div>
                   
