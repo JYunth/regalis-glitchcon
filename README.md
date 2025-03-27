@@ -36,5 +36,7 @@ To run Regalis locally for development:
     npm run dev
     ```
     This will start the application, typically available at `http://localhost:8080` (or another port specified by Vite).
-
----
+Video Links:
+ V1  https://www.loom.com/share/ac437a0946d74469b24ceb268c9ed876?sid=598a4997-3167-4b1b-9692-9b11e7af05fc
+ V2  https://www.loom.com/share/3a9f9bb52dc34484ac5b544d97390d6c?sid=14bddd03-9556-4936-a462-64bba279a29a
+ ---
