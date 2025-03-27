@@ -1,62 +1,110 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
 import InvestmentCard from '@/components/investments/InvestmentCard';
-import { Investment, getUserData } from '@/utils/localStorage';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Investment, InvestmentHolding, getUserData } from '@/utils/localStorage'; // Added InvestmentHolding
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'; // Will be moved to specific components
 import { loadDemoData } from '@/utils/demoData';
+import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton import
+import { Portfolio, UserInvestmentProfile, ProjectionDataPoint, DebtInvestmentRatioInfo } from '@/types/investments'; // Import relevant types (Added DebtInvestmentRatioInfo)
+import PortfolioOverview from '@/components/investments/overview/PortfolioOverview'; // Import the overview component
+import InvestmentRecommendations from '@/components/investments/recommendations/InvestmentRecommendations'; // Import the recommendations component
+import PerformanceProjections from '@/components/investments/projections/PerformanceProjections'; // Import the projections component
+import SmartSavings from '@/components/investments/savings/SmartSavings'; // Import the savings component
+import DebtInvestmentAdvisor from '@/components/investments/debt/DebtInvestmentAdvisor'; // Import the debt advisor component
+import InvestmentCalendar from '@/components/investments/calendar/InvestmentCalendar'; // Import the calendar component
+import InvestmentReportGenerator from '@/components/investments/reports/InvestmentReportGenerator'; // Import the reports component
+
+// TODO: Define more comprehensive types in src/types/investments.ts
+// type ProjectionDataPoint = { year: string; value: number }; // Already defined in types/investments.ts
 
 const Investments = () => {
-  const [investments, setInvestments] = useState<Investment[]>([]);
-  const [projectionData, setProjectionData] = useState<{year: string, value: number}[]>([]);
+  const [investmentSuggestions, setInvestmentSuggestions] = useState<Investment[]>([]); // Renamed state for clarity
+  const [holdings, setHoldings] = useState<InvestmentHolding[]>([]); // New state for actual holdings
+  // const [projectionData, setProjectionData] = useState<ProjectionDataPoint[]>([]); // Will be managed by projection component
   const [isLoading, setIsLoading] = useState(true);
+  const [portfolioData, setPortfolioData] = useState<Portfolio | undefined>(undefined); // State for portfolio overview data
+  const [currentBalance, setCurrentBalance] = useState<number>(0); // State for current balance
+  const [userProfile, setUserProfile] = useState<UserInvestmentProfile | undefined>(undefined); // State for user profile data
+  const [projectionData, setProjectionData] = useState<ProjectionDataPoint[] | undefined>(undefined); // State for projection data
+  const [debtInfo, setDebtInfo] = useState<DebtInvestmentRatioInfo | undefined>(undefined); // State for debt info
+  const [hasDebt, setHasDebt] = useState<boolean>(false); // State to track if user has debt
 
   useEffect(() => {
-    // Load demo data
+    // Load demo data (consider moving this if data fetching becomes more complex)
     loadDemoData();
-    
+
     // Simulate loading delay
     const timer = setTimeout(() => {
       const userData = getUserData();
-      setInvestments(userData.investments);
-      
-      // Generate projection data for the chart
-      setProjectionData(generateProjectionData());
-      
+      setInvestmentSuggestions(userData.investmentSuggestions); // Load suggestions (type Investment[])
+      setHoldings(userData.investments); // Load actual holdings (type InvestmentHolding[])
+      setCurrentBalance(userData.balance); // Set current balance from user data
+      setHasDebt(userData.liabilities && userData.liabilities.length > 0); // Check if user has liabilities
+
+      // --- Create Mock User Profile Data ---
+      const mockUserProfile: UserInvestmentProfile = {
+        riskTolerance: 'Balanced', // Example risk tolerance
+        // financialSituationSummary: 'Stable income, moderate savings.', // Example summary
+      };
+      setUserProfile(mockUserProfile);
+      // --- End Mock User Profile Data ---
+
+      // --- Create Mock Portfolio Data ---
+      // In a real app, this would involve calculation based on holdings, market data, AI, etc.
+      const mockTotalValue = userData.investments.reduce((sum, h) => sum + h.value, 0) + userData.balance; // Simple sum for now
+      const mockPortfolio: Portfolio = {
+        totalValue: mockTotalValue,
+        holdings: userData.investments,
+        assetAllocation: { // Dummy allocation
+          'Stocks': 45,
+          'Crypto': 25,
+          'ETFs': 20,
+          'Cash': 10,
+        },
+        diversificationScore: 75, // Dummy score
+        recentPerformance: 2.5, // Dummy performance
+        // idleCash: userData.balance > 5000 ? userData.balance : undefined, // Removed: Will be handled separately
+      };
+      setPortfolioData(mockPortfolio);
+      // --- End Mock Data ---
+
+      // --- Create Mock Projection Data ---
+      // In a real app, this would come from an AI model/backend
+       const mockProjectionDataPoints: ProjectionDataPoint[] = [
+         { date: '2025', value: mockTotalValue }, // Start with current value
+         { date: '2026', value: mockTotalValue * 1.08 + 10000 }, // Example simple projection
+         { date: '2027', value: (mockTotalValue * 1.08 + 10000) * 1.08 + 10000 },
+         // ... add more points
+       ];
+       setProjectionData(mockProjectionDataPoints);
+      // --- End Mock Projection Data ---
+
+      // --- Create Mock Debt Info Data ---
+      if (userData.liabilities && userData.liabilities.length > 0) {
+        const totalDebt = userData.liabilities.reduce((sum, l) => sum + l.balance, 0);
+        const totalInvestments = userData.investments.reduce((sum, h) => sum + h.value, 0);
+        const ratio = totalInvestments > 0 ? totalDebt / totalInvestments : 0;
+        const mockDebtData: DebtInvestmentRatioInfo = {
+          totalDebt: totalDebt,
+          totalInvestments: totalInvestments,
+          ratio: ratio,
+          recommendation: ratio < 0.5 ? 'Ratio looks good. Consider prioritizing investments.' : 'Ratio is high. Consider focusing on debt reduction.', // Simple mock logic
+        };
+        setDebtInfo(mockDebtData);
+      }
+      // --- End Mock Debt Info Data ---
+
       setIsLoading(false);
     }, 1000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
-  // Generate investment projection data for the next 10 years
-  const generateProjectionData = () => {
-    const startingAmount = 50000; // Initial investment amount
-    const annualContribution = 10000; // Annual contribution
-    const projectedReturn = 0.08; // 8% average annual return
-    
-    const data = [];
-    let currentValue = startingAmount;
-    const currentYear = new Date().getFullYear();
-    
-    for (let i = 0; i <= 10; i++) {
-      const year = (currentYear + i).toString();
-      
-      data.push({
-        year,
-        value: Math.round(currentValue)
-      });
-      
-      // Calculate next year's value with compound interest plus contribution
-      currentValue = currentValue * (1 + projectedReturn) + annualContribution;
-    }
-    
-    return data;
-  };
+  // Removed generateProjectionData function
 
-  // Format currency
+  // Format currency (Keep for now, might move to utils)
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -83,109 +131,109 @@ const Investments = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow pt-24 pb-16 px-6">
         <div className="container mx-auto">
           <h1 className="font-serif text-3xl md:text-4xl font-medium text-deep-charcoal mb-8">
-            Investment Opportunities
+            Investments Dashboard
           </h1>
-          
-          {/* Projection Chart */}
-          <GlassCard className="mb-8">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="font-serif text-xl text-deep-charcoal">Wealth Projection</h3>
-                <p className="text-deep-charcoal/70 text-sm mt-1">
-                  Estimated growth of a $50,000 investment with $10,000 annual contributions
-                </p>
-              </div>
-              <div className="bg-soft-emerald/10 rounded-full px-3 py-1">
-                <span className="text-soft-emerald font-medium">8% Annual Return</span>
-              </div>
-            </div>
-            
-            {isLoading ? (
-              <div className="h-64 bg-subtle-gray/20 animate-pulse rounded-md"></div>
-            ) : (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={projectionData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#DADADA" opacity={0.3} />
-                    <XAxis dataKey="year" tick={{ fill: '#2D2D2D', opacity: 0.7 }} />
-                    <YAxis 
-                      tickFormatter={(value) => `$${value/1000}k`} 
-                      tick={{ fill: '#2D2D2D', opacity: 0.7 }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#E4CDA7" 
-                      strokeWidth={2}
-                      dot={{ r: 4, strokeWidth: 2, fill: '#FFFFFF' }}
-                      activeDot={{ r: 6, strokeWidth: 0, fill: '#E4CDA7' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+
+          {/* Placeholder Section for Portfolio Overview */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Portfolio Overview</h2>
+            <PortfolioOverview 
+              portfolioData={portfolioData} 
+              isLoading={isLoading} 
+              currentBalance={currentBalance} // Pass current balance as prop
+            />
+          </section>
+
+          {/* Recommendations Section */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Personalized Recommendations</h2>
+            <InvestmentRecommendations 
+              userProfile={userProfile} 
+              isLoading={isLoading} 
+              // recommendations={...} // Pass actual recommendations if fetched here
+            />
+          </section>
+
+          {/* Projections Section */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Performance & Projections</h2>
+            <PerformanceProjections 
+              projectionData={projectionData} 
+              isLoading={isLoading} 
+            />
+          </section>
+
+          {/* Smart Savings Section */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Smart Savings & Passive Income</h2>
+            <SmartSavings 
+              isLoading={isLoading} 
+              // Pass actual savingsProducts and passiveIncomeSources if fetched here
+            />
+          </section>
+
+          {/* Debt Optimization Section */}
+          <section className="mb-8">
+            {/* Only render the heading if there's debt */}
+            {hasDebt && !isLoading && (
+              <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Debt-Optimized Investing</h2>
             )}
-          </GlassCard>
-          
-          {/* Investment Strategy Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <GlassCard className="animate-fade-in">
-              <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-4">
-                <span className="text-soft-gold font-serif text-xl">01</span>
-              </div>
-              <h3 className="font-serif text-xl mb-2 text-deep-charcoal">Diversified Portfolio</h3>
-              <p className="text-deep-charcoal/70 text-sm">
-                A carefully balanced mix of investments across different asset classes to manage risk and optimize returns over time.
-              </p>
-            </GlassCard>
-            
-            <GlassCard className="animate-fade-in" style={{animationDelay: '0.1s'}}>
-              <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-4">
-                <span className="text-soft-gold font-serif text-xl">02</span>
-              </div>
-              <h3 className="font-serif text-xl mb-2 text-deep-charcoal">Long-Term Growth</h3>
-              <p className="text-deep-charcoal/70 text-sm">
-                Focus on sustainable long-term growth through quality investments rather than short-term market timing or speculation.
-              </p>
-            </GlassCard>
-            
-            <GlassCard className="animate-fade-in" style={{animationDelay: '0.2s'}}>
-              <div className="h-12 w-12 rounded-full bg-soft-gold/10 flex items-center justify-center mb-4">
-                <span className="text-soft-gold font-serif text-xl">03</span>
-              </div>
-              <h3 className="font-serif text-xl mb-2 text-deep-charcoal">Tax Efficiency</h3>
-              <p className="text-deep-charcoal/70 text-sm">
-                Strategic investment placement to minimize tax impact and maximize after-tax returns while building long-term wealth.
-              </p>
-            </GlassCard>
-          </div>
-          
-          {/* Investment Opportunities */}
+            <DebtInvestmentAdvisor 
+              debtInfo={debtInfo} 
+              isLoading={isLoading} 
+              hasDebt={hasDebt} 
+            />
+          </section>
+
+          {/* Calendar & Alerts Section */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Calendar & Alerts</h2>
+            <InvestmentCalendar 
+              isLoading={isLoading} 
+              // Pass actual alerts if fetched here
+            />
+          </section>
+
+          {/* Reports Section */}
+          <section className="mb-8">
+            <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-4">Investment Reports</h2>
+            <InvestmentReportGenerator 
+              isLoading={isLoading} 
+              // Pass latestReport if fetched here
+            />
+          </section>
+
+          {/* Existing Investment Cards (Temporary - might be integrated into Overview or removed) */}
           <h2 className="font-serif text-2xl font-medium text-deep-charcoal mb-6">
-            Recommended Investments
+            Current Investment Holdings (Temporary)
           </h2>
           
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-64 bg-subtle-gray/20 animate-pulse rounded-xl"></div>
+                <Skeleton key={i} className="h-64 rounded-xl" /> // Use Skeleton component
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {investments.map((investment, index) => (
-                <InvestmentCard 
-                  key={investment.id} 
-                  investment={investment} 
-                  delay={index * 0.1}
-                />
+              {/* TODO: This section needs review. InvestmentCard expects 'Investment'. 
+                   Holdings are 'InvestmentHolding'. We might need a different card or modify InvestmentCard. 
+                   For now, rendering placeholder text. */}
+              {holdings.map((holding, index) => (
+                 <GlassCard key={index} className="p-4">
+                   <h3 className="font-semibold">{holding.name}</h3>
+                   <p>Type: {holding.type}</p>
+                   <p>Value: {formatCurrency(holding.value)}</p>
+                 </GlassCard>
+                // <InvestmentCard 
+                //   key={holding.name} // Assuming name is unique for holdings for now
+                //   investment={holding} // This will cause a type error if InvestmentCard expects Investment
+                //   delay={index * 0.1}
+                // />
               ))}
             </div>
           )}
